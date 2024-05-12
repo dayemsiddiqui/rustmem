@@ -54,49 +54,66 @@ pub fn process_request(request: &str) -> &'static str {
     let mut parts = request.split_whitespace();
     println!("Processing request...");
     // Third element is the command
-    let command = parts.nth(2).expect(error_response());
+    let command = parts.nth(2).expect(error_response(
+        "INVALID_COMMAND",
+        "Request must be an array",
+    ));
     match command {
         "SET" => set_command(parts),
         "GET" => get_command(parts),
         "DEL" => del_command(parts),
         "EXISTS" => exists_command(parts),
         "QUIT" => quit_command(),
-        _ => error_response(),
+        _ => error_response("INVALID_COMMAND", "Command not supported"),
     }
 }
 
 fn set_command(mut parts: std::str::SplitWhitespace) -> &'static str {
-    println!("Executing SET command...");
-    let key = parts.nth(1).expect(error_response());
-    let value = parts.nth(1).expect(error_response());
+    let key = parts
+        .nth(1)
+        .expect(error_response("INVALID_KEY", "Key not provided"));
+    let value = parts
+        .nth(1)
+        .expect(error_response("INVALID_VALUE", "Value not provided"));
     get_kv_store().insert(key.to_string(), value.to_string());
     ok_response()
 }
 
 fn get_command(mut parts: std::str::SplitWhitespace) -> &'static str {
-    println!("Executing GET command...");
-    let key = parts.nth(1).expect(error_response());
+    let key = parts
+        .nth(1)
+        .expect(error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if let Some(value) = kv_store.get(key) {
         return bulk_string_response(value);
     }
     println!("GET key: {}", key);
-    error_response()
+    error_response(
+        "KEY_NOT_FOUND",
+        "The specified key does not exist in the key-value store",
+    )
 }
 
 fn del_command(mut parts: std::str::SplitWhitespace) -> &'static str {
     println!("Executing DEL command...");
-    let key = parts.nth(1).expect(error_response());
+    let key = parts
+        .nth(1)
+        .expect(error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if kv_store.remove(key).is_some() {
         return ok_response();
     }
-    error_response()
+    error_response(
+        "KEY_NOT_FOUND",
+        "The specified key does not exist in the key-value store",
+    )
 }
 
 fn exists_command(mut parts: std::str::SplitWhitespace) -> &'static str {
     print!("Executing EXISTS command...");
-    let key = parts.nth(1).expect(error_response());
+    let key = parts
+        .nth(1)
+        .expect(error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if kv_store.contains_key(key) {
         return boolean_response(true);
@@ -113,8 +130,10 @@ fn quit_command() -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     #[test]
+    #[serial]
     fn test_set_command() {
         let request = "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
         let response = process_request(request);
@@ -122,6 +141,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_get_command() {
         // When
         let set_request = "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
@@ -133,6 +153,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_del_command() {
         // When
         let set_request = "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
@@ -144,6 +165,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_exists_command() {
         // When
         // Set the key
@@ -160,6 +182,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_quit_command() {
         let request = "*1\r\n$4\r\nQUIT\r\n";
         let response = process_request(request);

@@ -2,8 +2,11 @@ pub fn ok_response() -> &'static str {
     "+OK\r\n"
 }
 
-pub fn error_response() -> &'static str {
-    "-ERROR\r\n"
+pub fn error_response(key: &str, value: &str) -> &'static str {
+    // Format the error response
+    let response = format!("-{} {}\r\n", key.to_uppercase(), value);
+    // Return the response as a static string
+    return Box::leak(response.into_boxed_str());
 }
 
 pub fn bulk_string_response(value: &str) -> &'static str {
