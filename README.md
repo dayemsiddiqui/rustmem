@@ -17,3 +17,9 @@ The goal of this project is two folds:
 #### Handling multiple clients concurrently
 
 - An event loop should be implemented to handle multiple clients concurrently, using the poll API.
+
+## TODO
+
+- [ ] Understand the existing socket server implementation in C++.
+
+# Questions
