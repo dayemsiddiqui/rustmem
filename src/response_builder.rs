@@ -4,11 +4,11 @@ pub fn ok_response() -> String {
 
 pub fn error_response(key: &str, value: &str) -> String {
     // Format the error response
-    return format!("-{} {}\r\n", key.to_uppercase(), value);
+    format!("-{} {}\r\n", key.to_uppercase(), value)
 }
 
 pub fn bulk_string_response(value: &str) -> String {
-    return format!("${}\r\n{}\r\n", value.len(), value);
+    format!("${}\r\n{}\r\n", value.len(), value)
 }
 
 pub fn boolean_response(value: bool) -> String {
@@ -17,4 +17,7 @@ pub fn boolean_response(value: bool) -> String {
     } else {
         return ":0\r\n".to_owned();
     }
+}
+pub fn integer_response(value: i64) -> String {
+    format!(":{}\r\n", value)
 }

@@ -1,6 +1,4 @@
-use crate::response_builder::{
-    boolean_response, bulk_string_response, error_response, ok_response,
-};
+use crate::response_builder::{boolean_response, bulk_string_response, error_response, integer_response, ok_response};
 /**
 * This module is responsible for parsing the RESP protocol.
 * The RESP protocol is a simple text-based protocol that is used by Redis.
@@ -102,12 +100,9 @@ fn del_command(mut parts: std::str::SplitWhitespace) ->  String {
         .expect(&error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if kv_store.remove(key).is_some() {
-        return ok_response();
+        return integer_response(1);
     }
-    error_response(
-        "KEY_NOT_FOUND",
-        "The specified key does not exist in the key-value store",
-    )
+    integer_response(0)
 }
 
 fn exists_command(mut parts: std::str::SplitWhitespace) ->  String {
@@ -125,7 +120,7 @@ fn exists_command(mut parts: std::str::SplitWhitespace) ->  String {
 fn quit_command() ->  String {
     println!("QUIT");
     ok_response()
-    
+
 }
 #[cfg(test)]
 mod tests {
