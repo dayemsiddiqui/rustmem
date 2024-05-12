@@ -1,26 +1,20 @@
-pub fn ok_response() -> &'static str {
-    "+OK\r\n"
+pub fn ok_response() -> String {
+    return "+OK\r\n".to_owned();
 }
 
-pub fn error_response(key: &str, value: &str) -> &'static str {
+pub fn error_response(key: &str, value: &str) -> String {
     // Format the error response
-    let response = format!("-{} {}\r\n", key.to_uppercase(), value);
-    // Return the response as a static string
-    return Box::leak(response.into_boxed_str());
+    return format!("-{} {}\r\n", key.to_uppercase(), value);
 }
 
-pub fn bulk_string_response(value: &str) -> &'static str {
-    let response = format!("${}\r\n{}\r\n", value.len(), value);
-    // Return the response as a static string
-    // This is necessary because the response needs to live for the entire duration of the program
-    // The 'static lifetime is the longest possible lifetime, and it means that the string will live for the entire duration of the program.
-    Box::leak(response.into_boxed_str())
+pub fn bulk_string_response(value: &str) -> String {
+    return format!("${}\r\n{}\r\n", value.len(), value);
 }
 
-pub fn boolean_response(value: bool) -> &'static str {
+pub fn boolean_response(value: bool) -> String {
     if value {
-        ":1\r\n"
+        return ":1\r\n".to_owned();
     } else {
-        ":0\r\n"
+        return ":0\r\n".to_owned();
     }
 }

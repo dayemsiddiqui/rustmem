@@ -50,39 +50,40 @@ fn get_kv_store() -> &'static mut HashMap<String, String> {
     unsafe { KV_STORE.get_or_insert_with(|| HashMap::new()) }
 }
 
-pub fn process_request(request: &str) -> &'static str {
+pub fn process_request(request: &str) ->  &str {
     let mut parts = request.split_whitespace();
     println!("Processing request...");
     // Third element is the command
-    let command = parts.nth(2).expect(error_response(
+    let command = parts.nth(2).expect(&error_response(
         "INVALID_COMMAND",
         "Request must be an array",
     ));
-    match command {
+    let response = match command {
         "SET" => set_command(parts),
         "GET" => get_command(parts),
         "DEL" => del_command(parts),
         "EXISTS" => exists_command(parts),
         "QUIT" => quit_command(),
         _ => error_response("INVALID_COMMAND", "Command not supported"),
-    }
+    };
+    Box::leak(response.into_boxed_str())
 }
 
-fn set_command(mut parts: std::str::SplitWhitespace) -> &'static str {
+fn set_command(mut parts: std::str::SplitWhitespace) ->  String {
     let key = parts
         .nth(1)
-        .expect(error_response("INVALID_KEY", "Key not provided"));
+        .expect(&error_response("INVALID_KEY", "Key not provided"));
     let value = parts
         .nth(1)
-        .expect(error_response("INVALID_VALUE", "Value not provided"));
+        .expect(&error_response("INVALID_VALUE", "Value not provided"));
     get_kv_store().insert(key.to_string(), value.to_string());
     ok_response()
 }
 
-fn get_command(mut parts: std::str::SplitWhitespace) -> &'static str {
+fn get_command(mut parts: std::str::SplitWhitespace) ->  String {
     let key = parts
         .nth(1)
-        .expect(error_response("INVALID_KEY", "Key not provided"));
+        .expect(&error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if let Some(value) = kv_store.get(key) {
         return bulk_string_response(value);
@@ -94,11 +95,11 @@ fn get_command(mut parts: std::str::SplitWhitespace) -> &'static str {
     )
 }
 
-fn del_command(mut parts: std::str::SplitWhitespace) -> &'static str {
+fn del_command(mut parts: std::str::SplitWhitespace) ->  String {
     println!("Executing DEL command...");
     let key = parts
         .nth(1)
-        .expect(error_response("INVALID_KEY", "Key not provided"));
+        .expect(&error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if kv_store.remove(key).is_some() {
         return ok_response();
@@ -109,11 +110,11 @@ fn del_command(mut parts: std::str::SplitWhitespace) -> &'static str {
     )
 }
 
-fn exists_command(mut parts: std::str::SplitWhitespace) -> &'static str {
+fn exists_command(mut parts: std::str::SplitWhitespace) ->  String {
     print!("Executing EXISTS command...");
     let key = parts
         .nth(1)
-        .expect(error_response("INVALID_KEY", "Key not provided"));
+        .expect(&error_response("INVALID_KEY", "Key not provided"));
     let kv_store = get_kv_store();
     if kv_store.contains_key(key) {
         return boolean_response(true);
@@ -121,12 +122,11 @@ fn exists_command(mut parts: std::str::SplitWhitespace) -> &'static str {
     boolean_response(false)
 }
 
-fn quit_command() -> &'static str {
+fn quit_command() ->  String {
     println!("QUIT");
     ok_response()
-    // Close the connection
+    
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
