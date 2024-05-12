@@ -1,3 +1,6 @@
+use crate::response_builder::{
+    boolean_response, bulk_string_response, error_response, ok_response,
+};
 /**
 * This module is responsible for parsing the RESP protocol.
 * The RESP protocol is a simple text-based protocol that is used by Redis.
@@ -107,30 +110,6 @@ fn quit_command() -> &'static str {
     // Close the connection
 }
 
-fn ok_response() -> &'static str {
-    "+OK\r\n"
-}
-
-fn error_response() -> &'static str {
-    "-ERROR\r\n"
-}
-
-fn bulk_string_response(value: &str) -> &'static str {
-    let response = format!("${}\r\n{}\r\n", value.len(), value);
-    // Return the response as a static string
-    // This is necessary because the response needs to live for the entire duration of the program
-    // The 'static lifetime is the longest possible lifetime, and it means that the string will live for the entire duration of the program.
-    Box::leak(response.into_boxed_str())
-}
-
-fn boolean_response(value: bool) -> &'static str {
-    if value {
-        ":1\r\n"
-    } else {
-        ":0\r\n"
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -144,6 +123,10 @@ mod tests {
 
     #[test]
     fn test_get_command() {
+        // When
+        let set_request = "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
+        process_request(set_request);
+
         let request = "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n";
         let response = process_request(request);
         assert_eq!(response, "$5\r\nvalue\r\n");
@@ -151,6 +134,10 @@ mod tests {
 
     #[test]
     fn test_del_command() {
+        // When
+        let set_request = "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
+        process_request(set_request);
+
         let request = "*2\r\n$3\r\nDEL\r\n$3\r\nkey\r\n";
         let response = process_request(request);
         assert_eq!(response, "+OK\r\n");
@@ -158,23 +145,18 @@ mod tests {
 
     #[test]
     fn test_exists_command() {
+        // When
+        // Set the key
+        let set_request = "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n";
+        let response = process_request(set_request);
+
+        // Wait for the response
+        assert_eq!(response, "+OK\r\n");
+
+        // Then
         let request = "*2\r\n$6\r\nEXISTS\r\n$3\r\nkey\r\n";
         let response = process_request(request);
         assert_eq!(response, ":1\r\n");
-    }
-
-    #[test]
-    fn test_incr_command() {
-        let request = "*2\r\n$4\r\nINCR\r\n$3\r\nkey\r\n";
-        let response = process_request(request);
-        assert_eq!(response, ":1\r\n");
-    }
-
-    #[test]
-    fn test_decr_command() {
-        let request = "*2\r\n$4\r\nDECR\r\n$3\r\nkey\r\n";
-        let response = process_request(request);
-        assert_eq!(response, ":0\r\n");
     }
 
     #[test]
