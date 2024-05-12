@@ -1,3 +1,4 @@
+use super::parse_request;
 use std::net::SocketAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
@@ -15,7 +16,9 @@ pub async fn handle_client(mut stream: TcpStream) {
             Ok(n) => {
                 let request = String::from_utf8_lossy(&buffer[..n]);
                 println!("Received: {}", request);
-                let response = "PONG\r\n".as_bytes();
+                let response = parse_request(&request)
+                    .expect("Failed to parse request")
+                    .as_bytes();
                 stream.write_all(&response).await.unwrap();
             }
             Err(e) => {
