@@ -73,6 +73,54 @@
         }
       }
     },
+    "redli@latest": {
+      "last_modified": "2024-04-19T21:36:04Z",
+      "resolved": "github:NixOS/nixpkgs/92d295f588631b0db2da509f381b4fb1e74173c5#redli",
+      "source": "devbox-search",
+      "version": "0.13.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/vbq7xfl3panrif70af6k46dwp9s2c9cz-redli-0.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/vbq7xfl3panrif70af6k46dwp9s2c9cz-redli-0.13.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1s6k2cdw7zz3g2lavxp0rnzsf0nxa4sy-redli-0.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/1s6k2cdw7zz3g2lavxp0rnzsf0nxa4sy-redli-0.13.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/3zx56j48in99cmh6zij3vrlzwjfinzqm-redli-0.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/3zx56j48in99cmh6zij3vrlzwjfinzqm-redli-0.13.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/52kjsj74b3kpzgq92fq6lz6630fhkqyr-redli-0.13.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/52kjsj74b3kpzgq92fq6lz6630fhkqyr-redli-0.13.0"
+        }
+      }
+    },
     "rustc@latest": {
       "last_modified": "2024-05-01T20:12:28Z",
       "plugin_version": "0.0.1",

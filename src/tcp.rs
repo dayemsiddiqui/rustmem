@@ -1,4 +1,5 @@
-use super::parse_request;
+// Import a module defined in lib.rs
+use crate::resp_parser::process_request;
 use std::net::SocketAddr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
@@ -16,7 +17,7 @@ pub async fn handle_client(mut stream: TcpStream) {
             Ok(n) => {
                 let request = String::from_utf8_lossy(&buffer[..n]);
                 println!("Received: {}", request);
-                let response = parse_request(&request)
+                let response = process_request(&request)
                     .expect("Failed to parse request")
                     .as_bytes();
                 stream.write_all(&response).await.unwrap();
@@ -30,7 +31,7 @@ pub async fn handle_client(mut stream: TcpStream) {
 }
 
 pub async fn start_server() {
-    let address = "127.0.0.1:1234"
+    let address = "127.0.0.1:6379"
         .parse::<SocketAddr>()
         .expect("Failed to parse address");
     let listener = TcpListener::bind(&address)
