@@ -17,9 +17,7 @@ pub async fn handle_client(mut stream: TcpStream) {
             Ok(n) => {
                 let request = String::from_utf8_lossy(&buffer[..n]);
                 println!("Received: {}", request);
-                let response = process_request(&request)
-                    .expect("Failed to parse request")
-                    .as_bytes();
+                let response = process_request(&request).as_bytes();
                 stream.write_all(&response).await.unwrap();
             }
             Err(e) => {
